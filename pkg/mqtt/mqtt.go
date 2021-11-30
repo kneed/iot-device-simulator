@@ -3,11 +3,11 @@ package mqtt
 import (
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/kneed/iot-device-simulator/db/models"
 	log "github.com/sirupsen/logrus"
 	"time"
 )
 
-// Qos mqtt qos
 const (
 	qos        byte = 0
 	retryTimes int  = 3
@@ -26,7 +26,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 // NewMqttClient todo 相同的server应该被复用
-func NewMqttClient(broker string, port string, clientId string) mqtt.Client {
+func NewMqttClient(broker string, port string, clientId string) (mqtt.Client, error) {
 	var client mqtt.Client
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%s:%s", broker, port))
@@ -36,9 +36,9 @@ func NewMqttClient(broker string, port string, clientId string) mqtt.Client {
 	opts.OnConnectionLost = connectLostHandler
 	client = mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
+		return nil, token.Error()
 	}
-	return client
+	return client, nil
 }
 
 func Publish(client mqtt.Client, topic string, qos int, data []byte) {
@@ -53,5 +53,13 @@ func Publish(client mqtt.Client, topic string, qos int, data []byte) {
 		}
 		token.Wait()
 		break
+	}
+}
+
+// NewMessageHandlerWithProtocol 构建一个消息处理函数
+func NewMessageHandlerWithProtocol(mqttClient mqtt.Client, protocol models.Protocol) mqtt.MessageHandler {
+	return func(client mqtt.Client, msg mqtt.Message) {
+		log.Infof("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+		Publish(mqttClient, protocol.PubTopic, protocol.Qos, protocol.Content)
 	}
 }

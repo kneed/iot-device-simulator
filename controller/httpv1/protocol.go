@@ -2,6 +2,7 @@ package httpv1
 
 import (
 	"github.com/gin-gonic/gin"
+	form2 "github.com/kneed/iot-device-simulator/controller/form"
 	"github.com/kneed/iot-device-simulator/pkg/app"
 	"github.com/kneed/iot-device-simulator/services"
 	log "github.com/sirupsen/logrus"
@@ -9,14 +10,6 @@ import (
 	"strconv"
 )
 
-// @Summary 获取协议列表
-// @tags 协议接口
-// @Produce  json
-// @Param type query string false "Type"
-// @Param device_id query string false "Type"
-// @Success 200 {object} app.Response
-// @Failure 500 {object} app.Response
-// @Router /api/v1/protocols [get]
 func GetProtocols(c *gin.Context) {
 	var (
 		g               = app.Gin{Ctx: c}
@@ -66,23 +59,14 @@ func GetProtocols(c *gin.Context) {
 	return
 }
 
-// @Summary 创建协议
-// @tags 协议接口
-// @Produce  json
-// @Param name body string true "Name"
-// @Param type body int false "Type"
-// @Param server_ip body string true "ServerIp"
-// @Param server_port body string true "ServerPort"
-// @Success 200 {object} app.Response
-// @Failure 500 {object} app.Response
-// @Router /api/v1/protocols [post]
+
 func CreateProtocol(c *gin.Context) {
 	var (
 		g    = app.Gin{Ctx: c}
-		form CreateProtocolForm
+		form form2.CreateProtocolForm
 	)
 	if err := c.BindJSON(&form); err != nil {
-		log.Error("CreateProtocol参数绑定错误,err:%s", err)
+		log.Errorf("CreateProtocol参数绑定错误,err:%s", err)
 		g.Response(app.InvalidParams, nil)
 		return
 	}

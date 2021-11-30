@@ -10,7 +10,7 @@ import (
 
 func DbMigrate() {
 	dbUrl := settings.DatabaseSetting.Url
-	log.Info("---------database migrate start---------")
+	log.Debugf("---------database migrate start---------")
 	m, err := migrate.New(
 		"file:./migrations",
 		dbUrl)
@@ -23,7 +23,7 @@ func DbMigrate() {
 		if err != migrate.ErrNoChange {
 			log.Fatalf("%v", err.Error())
 		}
-		log.Info(err.Error())
+		log.Debug(err.Error())
 	}
-	log.Info("---------database migrate finished---------")
+	log.Debug("---------database migrate finished---------")
 }

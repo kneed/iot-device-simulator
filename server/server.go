@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Init() {
+func Run() {
 	serverPort := settings.ServerSetting.Port
 	r := NewRouter()
 	err := r.Run(":" + serverPort)

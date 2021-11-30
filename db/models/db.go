@@ -23,7 +23,7 @@ func InitDB() {
 		logger.Config{
 			SlowThreshold: 0,
 			Colorful:      true,
-			LogLevel:      logger.Silent,
+			LogLevel:      logger.Info,
 		},
 	)
 
@@ -44,7 +44,7 @@ func InitDB() {
 }
 
 type Model struct {
-	ID        uint           `gorm:"primarykey" json:"id"`
+	ID        int            `gorm:"primarykey" json:"id"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -65,4 +65,8 @@ func Paginate(pageNum int, pageSize int) func(db *gorm.DB) *gorm.DB {
 		offset := (pageNum - 1) * pageSize
 		return db.Offset(offset).Limit(pageSize)
 	}
+}
+
+func GetDB() *gorm.DB {
+	return db
 }

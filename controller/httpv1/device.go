@@ -2,6 +2,7 @@ package httpv1
 
 import (
 	"github.com/gin-gonic/gin"
+	form2 "github.com/kneed/iot-device-simulator/controller/form"
 	"github.com/kneed/iot-device-simulator/pkg/app"
 	"github.com/kneed/iot-device-simulator/services"
 	log "github.com/sirupsen/logrus"
@@ -75,7 +76,7 @@ func GetDevices(c *gin.Context) {
 func CreateDevice(c *gin.Context) {
 	var (
 		g    = app.Gin{Ctx: c}
-		form CreateDeviceForm
+		form form2.CreateDeviceForm
 	)
 	if err := c.BindJSON(&form); err != nil {
 		log.Error("CreateDevice参数绑定错误,err:%s", err)

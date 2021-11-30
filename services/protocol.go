@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/kneed/iot-device-simulator/controller/httpv1"
+	"github.com/kneed/iot-device-simulator/controller/form"
 	"github.com/kneed/iot-device-simulator/db/models"
 	"github.com/pkg/errors"
 )
@@ -20,15 +20,16 @@ func (d *ProtocolService) GetProtocols(pageNum int, pageSize int, conditions int
 }
 
 // 创建协议
-func (d *ProtocolService) CreateProtocol(protocolForm httpv1.CreateProtocolForm) (*models.Protocol, error) {
+func (d *ProtocolService) CreateProtocol(protocolForm form.CreateProtocolForm) (*models.Protocol, error) {
 	var protocol = &models.Protocol{
+		DeviceId: protocolForm.DeviceId,
 		Name: protocolForm.Name,
 		Content: protocolForm.Content,
-		Qos: protocolForm.Qos,
-		Type: protocolForm.Type,
+		Qos: *protocolForm.Qos,
+		Type: *protocolForm.Type,
 		SubTopic: protocolForm.SubTopic,
 		PubTopic: protocolForm.PubTopic,
-		StrategyId: protocolForm.StrategyId,
+		Strategy: protocolForm.Strategy,
 	}
 	protocol, err := models.CreateProtocol(protocol)
 	if err != nil {

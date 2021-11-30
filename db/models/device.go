@@ -5,6 +5,12 @@ import (
 	"gorm.io/gorm"
 )
 
+const(
+	DeviceRunning = "running"
+	DeviceShutdown = "shutdown"
+	DeviceError = "error"
+)
+
 type Device struct {
 	Model
 
@@ -12,6 +18,7 @@ type Device struct {
 	Type       string `json:"type"`
 	ServerIp   string `json:"server_ip"`
 	ServerPort string `json:"server_port"`
+	State      string `json:"state"`
 }
 
 func CreateDevice(device *Device) (*Device, error) {

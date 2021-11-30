@@ -9,21 +9,21 @@ import (
 type Protocol struct {
 	Model
 
-	ProtocolId uint           `json:"device_id"`
-	Name       string         `json:"name"`
-	Content    datatypes.JSON `json:"content"`
-	Qos        int            `json:"qos"`
-	Type       int            `json:"type"` // 0--自发, 1--响应
-	SubTopic   string         `json:"sub_topic"`
-	PubTopic   string         `json:"pub_topic"`
-	StrategyId int            `json:"strategy_id"`
+	DeviceId int           `json:"device_id"`
+	Name     string         `json:"name"`
+	Content  datatypes.JSON `json:"content"`
+	Qos      int            `json:"qos"`
+	Type     int            `json:"type"` // 0--自发, 1--响应
+	SubTopic string         `json:"sub_topic"`
+	PubTopic string         `json:"pub_topic"`
+	Strategy datatypes.JSON `json:"strategy"`
 }
 
-func CreateProtocol(device *Protocol) (*Protocol, error) {
-	if err := db.Create(device).Error; err != nil {
+func CreateProtocol(protocol *Protocol) (*Protocol, error) {
+	if err := db.Create(protocol).Error; err != nil {
 		return nil, errors.Wrap(err, "CreateProtocol异常")
 	}
-	return device, nil
+	return protocol, nil
 }
 
 func UpdateProtocol(id int, data interface{}) (*Protocol, error) {
@@ -38,21 +38,21 @@ func UpdateProtocol(id int, data interface{}) (*Protocol, error) {
 }
 
 func GetProtocols(pageNum int, pageSize int, maps interface{}, order string) ([]*Protocol, error) {
-	var devices []*Protocol
-	err := db.Where(maps).Order(order).Scopes(Paginate(pageNum, pageSize)).Find(&devices).Error
+	var protocols []*Protocol
+	err := db.Where(maps).Order(order).Scopes(Paginate(pageNum, pageSize)).Find(&protocols).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, errors.Wrap(err, "GetProtocols异常")
 	}
-	return devices, nil
+	return protocols, nil
 }
 
 func GetProtocol(id int) (*Protocol, error) {
-	var device Protocol
-	err := db.Where("id = ? AND deleted_at = ?", id, 0).First(&device).Error
+	var protocol Protocol
+	err := db.Where("id = ? AND deleted_at = ?", id, nil).First(&protocol).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, errors.Wrap(err, "GetProtocol异常")
 	}
-	return &device, nil
+	return &protocol, nil
 }
 
 func DeleteProtocol(id int) error {
@@ -60,6 +60,15 @@ func DeleteProtocol(id int) error {
 		return errors.Wrap(err, "DeleteProtocol异常")
 	}
 	return nil
+}
+
+func GetProtocolsByDeviceId(deviceId int) ([]*Protocol, error) {
+	var protocols []*Protocol
+	err := db.Where("device_id = ?", deviceId, nil).Find(&protocols).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, errors.Wrap(err, "GetProtocolsByDeviceId异常")
+	}
+	return protocols, nil
 }
 
 func CountProtocol(conditions interface{}) (int64, error) {
