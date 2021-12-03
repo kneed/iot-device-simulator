@@ -1,8 +1,8 @@
 version: '2.0'
 services:
-  postgresql:
+  simulator_postgresql:
     image: registry.cn-shenzhen.aliyuncs.com/yingzi/postgres:13.2-alpine
-    container_name: postgresql
+    container_name: simulator_postgresql
     restart: always
     command: postgres -c max_connections=100
     environment:
@@ -12,13 +12,13 @@ services:
       - 15432:5432
 
   simulator:
-    image: registry.cn-shenzhen.aliyuncs.com/yingzi/postgres:13.2-alpine
+    image: registry.cn-shenzhen.aliyuncs.com/yingzi/yingzi-edge-device-simulator:v0.0.1
     container_name: simulator
     restart: always
     environment:
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "password"
-      DB_HOST: "postgresql"
+      DB_HOST: "simulator_postgresql"
       DB_USER: "root"
       DB_PASSWORD: "password"
       DB_NAME: "simulator"
