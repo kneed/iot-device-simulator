@@ -1,0 +1,33 @@
+version: '2.0'
+services:
+  postgresql:
+    image: registry.cn-shenzhen.aliyuncs.com/yingzi/postgres:13.2-alpine
+    container_name: postgresql
+    restart: always
+    command: postgres -c max_connections=100
+    environment:
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "password"
+    ports:
+      - 15432:5432
+
+  simulator:
+    image: registry.cn-shenzhen.aliyuncs.com/yingzi/postgres:13.2-alpine
+    container_name: simulator
+    restart: always
+    environment:
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "password"
+      DB_HOST: "postgresql"
+      DB_USER: "root"
+      DB_PASSWORD: "password"
+      DB_NAME: "simulator"
+      DB_PORT: "5432"
+      LOG_LEVEL: "Debug"
+      LOG_FILENAME: "iot-simulator"
+      LOG_MAXDAYS: 7
+      SERVER_PORT: 8088
+      MAX_OPEN_CONNECTION: 20
+      MAX_IDLE_CONNECTION: 20
+    ports:
+      - 8088:8088
