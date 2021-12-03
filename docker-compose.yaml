@@ -21,7 +21,7 @@ services:
       DB_HOST: "simulator_postgresql"
       DB_USER: "root"
       DB_PASSWORD: "password"
-      DB_NAME: "simulator"
+      DB_NAME: "postgres"
       DB_PORT: "5432"
       LOG_LEVEL: "Debug"
       LOG_FILENAME: "iot-simulator"
