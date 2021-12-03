@@ -5,10 +5,11 @@ import (
 	"gorm.io/gorm"
 )
 
+
 const(
-	DeviceRunning = "running"
-	DeviceShutdown = "shutdown"
-	DeviceError = "error"
+	DeviceRunning  = "running"
+	DeviceIdle  = "idle"
+	DeviceError  = "error"
 )
 
 type Device struct {
@@ -18,7 +19,7 @@ type Device struct {
 	Type       string `json:"type"`
 	ServerIp   string `json:"server_ip"`
 	ServerPort string `json:"server_port"`
-	State      string `json:"state"`
+	State      string `json:"state"` // [running, idle, error]
 }
 
 func CreateDevice(device *Device) (*Device, error) {
@@ -29,7 +30,7 @@ func CreateDevice(device *Device) (*Device, error) {
 }
 
 func UpdateDevice(id int, data interface{}) (*Device, error) {
-	if err := db.Model(&Device{}).Where("id = ? AND deleted_at = ?", id, nil).Updates(data).Error; err != nil {
+	if err := db.Model(&Device{}).Where("id = ?", id).Updates(data).Error; err != nil {
 		return nil, errors.Wrap(err, "UpdateDevice异常")
 	}
 	device, err := GetDevice(id)
@@ -50,7 +51,7 @@ func GetDevices(pageNum int, pageSize int, conditions interface{}, order string)
 
 func GetDevice(id int) (*Device, error) {
 	var device Device
-	err := db.Where("id = ? AND deleted_at = ?", id, 0).First(&device).Error
+	err := db.Where("id = ?", id).First(&device).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, errors.Wrap(err, "GetDevice异常")
 	}
@@ -72,4 +73,5 @@ func CountDevice(conditions interface{}) (int64, error) {
 
 	return count, nil
 }
+
 

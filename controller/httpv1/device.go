@@ -1,8 +1,9 @@
 package httpv1
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
-	form2 "github.com/kneed/iot-device-simulator/controller/form"
+	"github.com/kneed/iot-device-simulator/controller/form"
 	"github.com/kneed/iot-device-simulator/pkg/app"
 	"github.com/kneed/iot-device-simulator/services"
 	log "github.com/sirupsen/logrus"
@@ -10,13 +11,6 @@ import (
 	"strconv"
 )
 
-// @Summary 获取设备列表
-// @tags 设备接口
-// @Produce  json
-// @Param type query string false "Type"
-// @Success 200 {object} app.Response
-// @Failure 500 {object} app.Response
-// @Router /api/v1/devices [get]
 func GetDevices(c *gin.Context) {
 	var (
 		g               = app.Gin{Ctx: c}
@@ -41,13 +35,13 @@ func GetDevices(c *gin.Context) {
 	}
 	devices, err := services.Device.GetDevices(currentPage, pageSize, queryConditions, order)
 	if err != nil {
-		log.Errorf("GetDevices失败,%s", err)
+		log.Errorf("GetDevices失败,%+v", err)
 		g.Response(app.Error, nil)
 		return
 	}
 	totalCount, err := services.Device.CountDevice(queryConditions)
 	if err != nil {
-		log.Errorf("CountDevice失败,%s", err)
+		log.Errorf("CountDevice失败,%+v", err)
 		g.Response(app.Error, nil)
 		return
 	}
@@ -63,33 +57,81 @@ func GetDevices(c *gin.Context) {
 	return
 }
 
-// @Summary 创建设备
-// @tags 设备接口
-// @Produce  json
-// @Param name body string true "Name"
-// @Param type body int false "Type"
-// @Param server_ip body string true "ServerIp"
-// @Param server_port body string true "ServerPort"
-// @Success 200 {object} app.Response
-// @Failure 500 {object} app.Response
-// @Router /api/v1/devices [post]
+
 func CreateDevice(c *gin.Context) {
 	var (
 		g    = app.Gin{Ctx: c}
-		form form2.CreateDeviceForm
+		deviceForm form.CreateDeviceForm
 	)
-	if err := c.BindJSON(&form); err != nil {
-		log.Error("CreateDevice参数绑定错误,err:%s", err)
+	if err := c.BindJSON(&deviceForm); err != nil {
+		log.Error("CreateDevice参数绑定错误,err:%+v", err)
 		g.Response(app.InvalidParams, nil)
 		return
 	}
-	device, err := services.Device.CreateDevice(form)
+	device, err := services.Device.CreateDevice(deviceForm)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("%+v",err)
 		g.Response(app.Error, nil)
 		return
 	}
 	g.Response(app.Success, device)
 	return
 
+}
+
+func PatchDevice(c *gin.Context) {
+	var (
+		g             = app.Gin{Ctx: c}
+		deviceContent = map[string]interface{}{}
+	)
+	err := c.ShouldBindJSON(&deviceContent)
+	if err != nil {
+		log.Errorf("%+v",err)
+		g.Response(app.InvalidParams, nil)
+		return
+	}
+	deviceID:= c.Param("device_id")
+	fmt.Println(deviceID)
+	deviceIDInt,_ := strconv.Atoi(deviceID)
+	isExist, err := services.Device.IsExistByID(deviceIDInt)
+	if err != nil {
+		log.Errorf("%+v",err)
+		g.Response(app.Error, nil)
+		return
+	}
+	if !isExist {
+		g.Response(app.ObjectNotExist, nil)
+		return
+	}
+	device, err := services.Device.UpdateDevice(deviceIDInt, deviceContent)
+	if err != nil {
+		log.Errorf("%+v", err)
+		g.Response(app.Error, nil)
+		return
+	}
+	g.Response(app.Success, device)
+	return
+}
+
+func RestartDevice(c *gin.Context) {
+	var (
+		g             = app.Gin{Ctx: c}
+		deviceContent = form.RestartDeviceForm{}
+		deviceIDs     []int
+	)
+	err := c.ShouldBindJSON(&deviceContent)
+	if err != nil {
+		log.Errorf("%+v",err)
+		g.Response(app.InvalidParams, nil)
+		return
+	}
+	deviceIDs = deviceContent.DeviceIDS
+	err = services.Device.DeviceRestart(deviceIDs)
+	if err != nil {
+		log.Errorf("重启模拟器失败. erorr:%+v", err)
+		g.Response(app.Error, nil)
+		return
+	}
+	g.Response(app.Success, nil)
+	return
 }

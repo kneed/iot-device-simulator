@@ -37,13 +37,13 @@ func GetProtocols(c *gin.Context) {
 	}
 	protocols, err := services.Protocol.GetProtocols(currentPage, pageSize, queryConditions, order)
 	if err != nil {
-		log.Errorf("GetProtocols失败,%s", err)
+		log.Errorf("GetProtocols失败,%+v", err)
 		g.Response(app.Error, nil)
 		return
 	}
 	totalCount, err := services.Protocol.CountProtocol(queryConditions)
 	if err != nil {
-		log.Errorf("CountProtocol失败,%s", err)
+		log.Errorf("CountProtocol失败,%+v", err)
 		g.Response(app.Error, nil)
 		return
 	}
@@ -66,17 +66,16 @@ func CreateProtocol(c *gin.Context) {
 		form form2.CreateProtocolForm
 	)
 	if err := c.BindJSON(&form); err != nil {
-		log.Errorf("CreateProtocol参数绑定错误,err:%s", err)
+		log.Errorf("CreateProtocol参数绑定错误,err:%+v", err)
 		g.Response(app.InvalidParams, nil)
 		return
 	}
 	protocol, err := services.Protocol.CreateProtocol(form)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("%+v", err)
 		g.Response(app.Error, nil)
 		return
 	}
 	g.Response(app.Success, protocol)
 	return
-
 }

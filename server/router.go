@@ -7,8 +7,6 @@ import (
 	"github.com/kneed/iot-device-simulator/pkg/logging"
 	"github.com/kneed/iot-device-simulator/settings"
 	log "github.com/sirupsen/logrus"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"net/http"
 )
 
@@ -30,14 +28,16 @@ func NewRouter() *gin.Engine {
 	}))
 
 	// swagger文档
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	v1Route := router.Group("/simulator/api/v1")
 	{
 		deviceGroup := v1Route.Group("devices")
 		{
 			deviceGroup.POST("", httpv1.CreateDevice)
-			deviceGroup.GET("", httpv1.GetDevices)
+			deviceGroup.GET("/:device_id", httpv1.GetDevices)
+			deviceGroup.PATCH("/:device_id", httpv1.PatchDevice)
+			deviceGroup.POST("/restart", httpv1.RestartDevice)
 		}
 		protocolGroup := v1Route.Group("protocols")
 		{
