@@ -46,8 +46,6 @@ MAX_IDLE_CONNECTION: 20
 
 ### HTTP接口
 
-http://yapi.yingzi.com/project/923/interface/api
-
 ## 设计文档
 
 
